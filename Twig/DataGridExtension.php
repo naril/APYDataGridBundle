@@ -424,21 +424,20 @@ class DataGridExtension extends AbstractExtension implements GlobalsInterface
      *
      * @return TemplateWrapper[]
      */
-    protected function getTemplates(Environment $environment)
+    protected function getTemplates(Environment  $environment)
     {
-        if (empty($this->templates)) {
-            if ($this->theme instanceof TemplateWrapper) {
-                $this->templates[] = $this->theme;
-                $this->templates[] = $environment->load($this->defaultTemplate);
-            } elseif (is_string($this->theme)) {
-                $this->templates = $this->getTemplatesFromString($environment, $this->theme);
-            } elseif ($this->theme === null) {
-                $this->templates = $this->getTemplatesFromString($environment, $this->defaultTemplate);
-            } else {
-                throw new \Exception('Unable to load template');
-            }
+        if ($this->templates) {
+            return $this->templates;
         }
-
+        $this->templates[] = $environment->load($this->defaultTemplate);
+        if ($this->theme) {
+            if (!$this->theme instanceof \Twig_Template && !$this->theme instanceof \Twig_TemplateWrapper) {
+                $template = $environment->load($this->theme);
+            } else {
+                $template = $this->theme;
+            }
+            array_unshift($this->templates, $template);
+        }
         return $this->templates;
     }
 
